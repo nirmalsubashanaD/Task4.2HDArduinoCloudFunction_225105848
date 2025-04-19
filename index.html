@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LED Control Panel</title>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f7fa; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;">
+
+  <div style="background-color: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; margin-top: 50px; width: 320px;">
+    <h2 style="color: #333; text-align: center; margin-bottom: 30px; font-weight: 500;">Control Your LEDs Remotely</h2>
+
+    <div style="display: flex; align-items: center; margin-bottom: 20px; padding: 15px; border-radius: 8px; transition: all 0.3s ease; cursor: pointer;">
+      <input type="radio" name="led" id="red" style="accent-color: #ff6b6b; width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
+      <label for="red" style="font-size: 18px; color: #ff6b6b; font-weight: 500; flex-grow: 1;">Red LED</label>
+      <div style="height: 12px; width: 12px; border-radius: 50%; background-color: #ff6b6b; box-shadow: 0 0 5px #ff6b6b;"></div>
+    </div>
+
+    <div style="display: flex; align-items: center; margin-bottom: 20px; padding: 15px; border-radius: 8px; transition: all 0.3s ease; cursor: pointer;">
+      <input type="radio" name="led" id="green" style="accent-color: #51cf66; width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
+      <label for="green" style="font-size: 18px; color: #51cf66; font-weight: 500; flex-grow: 1;">Green LED</label>
+      <div style="height: 12px; width: 12px; border-radius: 50%; background-color: #51cf66; box-shadow: 0 0 5px #51cf66;"></div>
+    </div>
+
+    <div style="display: flex; align-items: center; margin-bottom: 20px; padding: 15px; border-radius: 8px; transition: all 0.3s ease; cursor: pointer;">
+      <input type="radio" name="led" id="blue" style="accent-color: #339af0; width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
+      <label for="blue" style="font-size: 18px; color: #339af0; font-weight: 500; flex-grow: 1;">Blue LED</label>
+      <div style="height: 12px; width: 12px; border-radius: 50%; background-color: #339af0; box-shadow: 0 0 5px #339af0;"></div>
+    </div>
+
+    <button id="offBtn" style="margin-top: 20px; width: 100%; padding: 12px 0; background-color: #e63946; color: white; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease;">
+      Turn Off
+    </button>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js" type="module"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC02av0pFAnr4Ew2C0FFhvtOjs5MMJxmtc",
+      authDomain: "remotetrafficctrl.firebaseapp.com",
+      databaseURL: "https://remotetrafficctrl-default-rtdb.firebaseio.com",
+      projectId: "remotetrafficctrl",
+      storageBucket: "remotetrafficctrl.firebasestorage.app",
+      messagingSenderId: "492215680122",
+      appId: "1:492215680122:web:6c38624dc122b79b224fc3",
+      measurementId: "G-8WL7Y52HV2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    function updateLEDState(activeLed) {
+      const leds = ['red', 'green', 'blue'];
+      leds.forEach(led => {
+        set(ref(db, 'leds/' + led), led === activeLed);
+      });
+    }
+
+    document.getElementById('red').addEventListener('change', () => updateLEDState('red'));
+    document.getElementById('green').addEventListener('change', () => updateLEDState('green'));
+    document.getElementById('blue').addEventListener('change', () => updateLEDState('blue'));
+
+    document.getElementById('offBtn').addEventListener('click', () => {
+      ['red', 'green', 'blue'].forEach(led => set(ref(db, 'leds/' + led), false));
+      document.querySelectorAll('input[name="led"]').forEach(el => el.checked = false);
+    });
+
+    // Sync radio buttons with real-time database
+    const leds = ['red', 'green', 'blue'];
+    leds.forEach(led => {
+      const ledRef = ref(db, 'leds/' + led);
+      onValue(ledRef, snapshot => {
+        if (snapshot.exists() && snapshot.val() === true) {
+          document.getElementById(led).checked = true;
+        } else {
+          document.getElementById(led).checked = false;
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
