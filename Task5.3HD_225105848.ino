@@ -2,8 +2,8 @@
 #include <ArduinoHttpClient.h>
 
 // network credentials
-char ssid[] = "SL_Kollo";
-char pass[] = "hondaaccord123@";
+char ssid[] = "aaaa";
+char pass[] = "123@";
 
 // Firebase Realtime Database details
 const char* firebaseHost = "remotetrafficctrl-default-rtdb.firebaseio.com";
